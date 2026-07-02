@@ -1,9 +1,10 @@
-import { Home, Lightbulb, Settings, Sparkles } from 'lucide-react';
+import { Camera, Home, Lightbulb, Settings, Sparkles } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const navigationItems = [
   { label: 'Home', path: '/', icon: Home },
   { label: 'Live Analysis', path: '/live-analysis', icon: Sparkles },
+  { label: 'Screen Capture', path: '/screen-capture', icon: Camera },
   { label: 'Suggestions', path: '/suggestions', icon: Lightbulb },
   { label: 'Settings', path: '/settings', icon: Settings },
 ];

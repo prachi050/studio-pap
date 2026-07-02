@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     log_file: Path = Field(default=BASE_DIR / "logs" / "app.log", alias="LOG_FILE")
     uploads_dir: Path = Field(default=BASE_DIR / "uploads", alias="UPLOADS_DIR")
+    openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
+    openai_base_url: str = Field(default="https://api.openai.com/v1", alias="OPENAI_BASE_URL")
+    ai_vision_model: str = Field(default="gpt-5.5", alias="AI_VISION_MODEL")
 
     @field_validator("log_file", "uploads_dir", mode="after")
     @classmethod

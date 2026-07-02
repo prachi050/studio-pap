@@ -1,9 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 type IpcChannel = 'app:ping';
+type IpcInvokeChannel = IpcChannel | 'screen:capture-primary';
 
 const electronApi = {
-  invoke: <TResponse>(channel: IpcChannel, payload?: unknown): Promise<TResponse> => {
+  invoke: <TResponse>(channel: IpcInvokeChannel, payload?: unknown): Promise<TResponse> => {
     return ipcRenderer.invoke(channel, payload);
   },
   on: (channel: IpcChannel, listener: (...args: unknown[]) => void): (() => void) => {

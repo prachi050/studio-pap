@@ -49,6 +49,22 @@ Returns the backend status.
 }
 ```
 
+### POST /screen/upload
+
+Accepts a temporary screenshot image as multipart form data using the field name `screenshot`.
+
+Returns:
+
+```json
+{
+  "status": "uploaded",
+  "filename": "...",
+  "message": "Screenshot received successfully."
+}
+```
+
+Screenshots are saved temporarily in `uploads/`. They are not permanent application storage.
+
 ## Project Structure
 
 ```text

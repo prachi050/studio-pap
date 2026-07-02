@@ -28,6 +28,19 @@ The Home page checks:
 GET /
 ```
 
+## Screen Capture Foundation
+
+The Screen Capture page performs a single user-triggered capture of the primary display through
+Electron IPC and `desktopCapturer`.
+
+After a successful capture, the renderer automatically uploads the screenshot to:
+
+```text
+POST http://127.0.0.1:8000/screen/upload
+```
+
+This foundation does not include OCR, AI, OpenAI calls, background capture, or continuous capture.
+
 ## Setup
 
 ```bash
