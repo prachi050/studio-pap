@@ -131,19 +131,21 @@ export function ScreenCapturePage() {
               <span>Upload Status</span>
               <span className="font-medium text-white">{uploadState}</span>
             </div>
-            {uploadState === 'uploading' ? (
-  <p className="mt-2 text-cyan-200">⬆️ Uploading screenshot...</p>
-) : null}
 
-{uploadState === 'uploaded' && upload ? (
-  <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 p-3">
-    <p className="font-medium text-emerald-200">
-      ✅ Screenshot uploaded successfully
-    </p>
-    <p className="mt-1 text-slate-300">Filename: {upload.filename}</p>
-    <p className="mt-1 text-slate-400">{upload.message}</p>
-  </div>
-) : null}
+            {uploadState === 'uploading' ? (
+              <p className="mt-2 text-cyan-200">⬆️ Uploading screenshot...</p>
+            ) : null}
+
+            {uploadState === 'uploaded' && upload ? (
+              <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 p-3">
+                <p className="font-medium text-emerald-200">
+                  ✅ Screenshot uploaded successfully
+                </p>
+                <p className="mt-1 text-slate-300">Filename: {upload.filename}</p>
+                <p className="mt-1 text-slate-400">{upload.message}</p>
+              </div>
+            ) : null}
+
             {uploadErrorMessage ? (
               <p className="mt-2 text-red-100">{uploadErrorMessage}</p>
             ) : null}
@@ -157,10 +159,88 @@ export function ScreenCapturePage() {
             ) : null}
 
             {analysis ? (
-              <div className="space-y-5">
+              <div className="space-y-6">
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
+                      Screen Type
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-white">
+                      {analysis.screen_type}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-emerald-200">
+                      Design Score
+                    </p>
+                    <p className="mt-2 text-3xl font-semibold text-white">
+                      {analysis.design_score}/100
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                      Top Priority
+                    </p>
+                    <p className="mt-2 text-sm text-slate-200">
+                      {analysis.top_priority}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-5">
+                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+                    <p className="text-xs text-slate-400">Accessibility</p>
+                    <p className="mt-1 text-xl font-semibold text-white">
+                      {analysis.accessibility_score}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+                    <p className="text-xs text-slate-400">Hierarchy</p>
+                    <p className="mt-1 text-xl font-semibold text-white">
+                      {analysis.hierarchy_score}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+                    <p className="text-xs text-slate-400">Typography</p>
+                    <p className="mt-1 text-xl font-semibold text-white">
+                      {analysis.typography_score}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+                    <p className="text-xs text-slate-400">Spacing</p>
+                    <p className="mt-1 text-xl font-semibold text-white">
+                      {analysis.spacing_score}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+                    <p className="text-xs text-slate-400">Color</p>
+                    <p className="mt-1 text-xl font-semibold text-white">
+                      {analysis.color_score}
+                    </p>
+                  </div>
+                </div>
+
                 <div>
                   <h3 className="text-base font-semibold text-white">Summary</h3>
                   <p className="mt-2 text-slate-300">{analysis.summary}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-semibold text-white">Quick Wins</h3>
+                  <ul className="mt-2 space-y-2 text-slate-300">
+                    {analysis.quick_wins.map((win) => (
+                      <li key={win} className="flex gap-2">
+                        <span className="text-emerald-300">✓</span>
+                        <span>{win}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
                 <div>

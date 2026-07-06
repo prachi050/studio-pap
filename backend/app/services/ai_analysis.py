@@ -24,19 +24,41 @@ ANALYSIS_RESPONSE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": False,
     "properties": {
-        "summary": {
-            "type": "string",
-            "description": "A concise design critique summary.",
-        },
+        "screen_type": {"type": "string"},
+        "design_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "accessibility_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "hierarchy_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "typography_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "spacing_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "color_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "summary": {"type": "string"},
         "suggestions": {
             "type": "array",
-            "description": "Specific, actionable design improvement suggestions.",
             "items": {"type": "string"},
             "minItems": 3,
-            "maxItems": 6,
+            "maxItems": 8,
         },
+        "quick_wins": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "maxItems": 3,
+        },
+        "top_priority": {"type": "string"},
     },
-    "required": ["summary", "suggestions"],
+    "required": [
+        "screen_type",
+        "design_score",
+        "accessibility_score",
+        "hierarchy_score",
+        "typography_score",
+        "spacing_score",
+        "color_score",
+        "summary",
+        "suggestions",
+        "quick_wins",
+        "top_priority",
+    ],
 }
 
 
