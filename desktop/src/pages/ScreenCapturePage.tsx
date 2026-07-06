@@ -76,7 +76,7 @@ export function ScreenCapturePage() {
   };
 
   return (
-    <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-10 py-12">
+    <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col overflow-y-auto px-10 py-12">
       <div className="flex items-start justify-between gap-6">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-300">
