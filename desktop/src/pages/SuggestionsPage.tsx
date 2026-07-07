@@ -1,4 +1,12 @@
-import { Clock3, FileSearch, Gauge, Sparkles, Trash2 } from 'lucide-react';
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Clock3,
+  Gauge,
+  Sparkles,
+  Target,
+  Trash2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -12,44 +20,68 @@ function formatDate(value: string): string {
 }
 
 export function SuggestionsPage() {
-  const [history, setHistory] = useState<SavedAnalysis[]>([]);
+  const [latestAnalysis, setLatestAnalysis] = useState<SavedAnalysis | null>(null);
 
   useEffect(() => {
-    setHistory(getAnalysisHistory());
+    const history = getAnalysisHistory();
+    setLatestAnalysis(history[0] ?? null);
   }, []);
-
-  const averageScore =
-    history.length > 0
-      ? Math.round(
-          history.reduce((total, item) => total + item.design_score, 0) /
-            history.length,
-        )
-      : null;
 
   const handleClearHistory = () => {
     clearAnalysisHistory();
-    setHistory([]);
+    setLatestAnalysis(null);
   };
 
+  if (!latestAnalysis) {
+    return (
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-10 py-12">
+        <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#00D97E]">
+          Analysis
+        </p>
+
+        <h2 className="mt-5 text-4xl font-semibold text-[#F1F5F9]">
+          No Active Report
+        </h2>
+
+        <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-12 text-center">
+          <Sparkles className="mx-auto text-[#00D97E]" size={42} />
+          <h3 className="mt-5 text-2xl font-semibold text-[#F1F5F9]">
+            Capture a screen to begin
+          </h3>
+          <p className="mx-auto mt-3 max-w-xl text-slate-400">
+            Your latest Studio PAP design analysis will appear here after you capture
+            and analyze a screen.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="mx-auto w-full max-w-6xl px-10 py-12">
+    <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-10 py-12">
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-300">
-            AI Analysis History
+          <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#00D97E]">
+            Analysis Report
           </p>
 
-          <h2 className="mt-5 text-4xl font-semibold text-white">
-            Previous Reviews
+          <h2 className="mt-5 text-4xl font-semibold text-[#F1F5F9]">
+            Current Design Review
           </h2>
 
           <p className="mt-3 max-w-2xl text-slate-400">
-            Every screen you analyze appears here with its AI scores, quick wins,
-            and recommendations.
+            Studio PAP analyzed your latest screen and generated structured design intelligence.
           </p>
         </div>
 
-        {history.length > 0 ? (
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-slate-400">
+            <div className="flex items-center gap-2">
+              <Clock3 size={16} className="text-[#00D97E]" />
+              {formatDate(latestAnalysis.captured_at)}
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={handleClearHistory}
@@ -58,167 +90,122 @@ export function SuggestionsPage() {
             <Trash2 size={16} aria-hidden="true" />
             Clear History
           </button>
-        ) : null}
+        </div>
       </div>
 
-      <div className="mt-10 grid gap-5 md:grid-cols-3">
-        <article className="rounded-xl border border-white/10 bg-white/[0.06] p-5">
-          <div className="flex items-center gap-3">
-            <Gauge className="text-emerald-300" size={20} />
-            <span className="text-sm text-slate-300">Average Score</span>
-          </div>
-
-          <p className="mt-5 text-5xl font-semibold text-white">
-            {averageScore ?? '—'}
+      <div className="mt-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <article className="rounded-2xl border border-[#00D97E]/20 bg-[#00D97E]/[0.08] p-6 shadow-[0_0_40px_rgba(0,217,126,0.12)]">
+          <p className="text-xs uppercase tracking-[0.2em] text-[#00D97E]">
+            Design Score
           </p>
 
-          <p className="mt-2 text-sm text-slate-400">
-            Calculated from saved analyses.
-          </p>
-        </article>
-
-        <article className="rounded-xl border border-white/10 bg-white/[0.06] p-5">
-          <div className="flex items-center gap-3">
-            <FileSearch className="text-cyan-300" size={20} />
-            <span className="text-sm text-slate-300">Total Reviews</span>
-          </div>
-
-          <p className="mt-5 text-5xl font-semibold text-white">
-            {history.length}
-          </p>
-
-          <p className="mt-2 text-sm text-slate-400">Saved design analyses.</p>
-        </article>
-
-        <article className="rounded-xl border border-white/10 bg-white/[0.06] p-5">
-          <div className="flex items-center gap-3">
-            <Clock3 className="text-violet-300" size={20} />
-            <span className="text-sm text-slate-300">Last Review</span>
-          </div>
-
-          <p className="mt-5 text-xl font-semibold text-white">
-            {history[0] ? formatDate(history[0].captured_at) : '—'}
-          </p>
-
-          <p className="mt-2 text-sm text-slate-400">
-            {history[0] ? history[0].screen_type : 'No analysis saved yet.'}
-          </p>
-        </article>
-      </div>
-
-      {history.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-slate-950/50 p-12">
-          <div className="flex flex-col items-center text-center">
-            <Sparkles size={42} className="text-cyan-300" />
-
-            <h3 className="mt-5 text-2xl font-semibold text-white">
-              Your AI Review History
-            </h3>
-
-            <p className="mt-3 max-w-xl text-slate-400">
-              Capture a screen to begin building your design history.
+          <div className="mt-5 flex items-end gap-2">
+            <p className="text-7xl font-semibold text-[#F1F5F9]">
+              {latestAnalysis.design_score}
             </p>
+            <p className="mb-3 text-xl text-slate-400">/100</p>
           </div>
-        </div>
-      ) : (
-        <div className="mt-10 space-y-5">
-          {history.map((item) => (
-            <article
-              key={item.id}
-              className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-panel"
-            >
-              <div className="flex items-start justify-between gap-6">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                    {item.screen_type}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-semibold text-white">
-                    Design Review
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-400">
-                    {formatDate(item.captured_at)}
-                  </p>
-                </div>
 
-                <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-center">
-                  <p className="text-xs uppercase tracking-[0.18em] text-emerald-200">
-                    Score
-                  </p>
-                  <p className="mt-2 text-3xl font-semibold text-white">
-                    {item.design_score}
-                  </p>
-                </div>
-              </div>
+          <p className="mt-5 text-sm text-slate-300">
+            Screen type: {latestAnalysis.screen_type}
+          </p>
+        </article>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-5">
-                <Score label="Accessibility" value={item.accessibility_score} />
-                <Score label="Hierarchy" value={item.hierarchy_score} />
-                <Score label="Typography" value={item.typography_score} />
-                <Score label="Spacing" value={item.spacing_score} />
-                <Score label="Color" value={item.color_score} />
-              </div>
-
-              <p className="mt-5 text-sm leading-6 text-slate-300">
-                {item.summary}
+        <article className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-panel">
+          <div className="flex items-start gap-3">
+            <Target size={22} className="mt-1 text-[#00D97E]" />
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#00D97E]">
+                Top Priority
               </p>
+              <p className="mt-3 text-base leading-7 text-[#F1F5F9]">
+                {latestAnalysis.top_priority}
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
 
-              <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/50 p-4">
-                <p className="text-sm font-semibold text-white">Top Priority</p>
-                <p className="mt-2 text-sm text-slate-300">
-                  {item.top_priority}
-                </p>
-              </div>
+      <div className="mt-6 grid gap-3 md:grid-cols-5">
+        <ScoreCard label="Accessibility" value={latestAnalysis.accessibility_score} />
+        <ScoreCard label="Hierarchy" value={latestAnalysis.hierarchy_score} />
+        <ScoreCard label="Typography" value={latestAnalysis.typography_score} />
+        <ScoreCard label="Spacing" value={latestAnalysis.spacing_score} />
+        <ScoreCard label="Color" value={latestAnalysis.color_score} />
+      </div>
 
-              <div className="mt-5 grid gap-5 lg:grid-cols-2">
-                <div>
-                  <h4 className="text-sm font-semibold text-white">
-                    Quick Wins
-                  </h4>
-                  <ul className="mt-2 space-y-2 text-sm text-slate-300">
-                    {item.quick_wins.map((win) => (
-                      <li key={win} className="flex gap-2">
-                        <span className="text-emerald-300">✓</span>
-                        <span>{win}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+        <article className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-panel">
+          <div className="flex items-center gap-3">
+            <Gauge size={20} className="text-[#00D97E]" />
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Executive Summary</h3>
+          </div>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-white">
-                    Suggestions
-                  </h4>
-                  <ul className="mt-2 space-y-2 text-sm text-slate-300">
-                    {item.suggestions.slice(0, 3).map((suggestion) => (
-                      <li key={suggestion} className="flex gap-2">
-                        <span className="text-cyan-300">•</span>
-                        <span>{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+          <p className="mt-4 leading-7 text-slate-300">
+            {latestAnalysis.summary}
+          </p>
+        </article>
 
-              <div className="mt-5 overflow-hidden rounded-xl border border-white/10 bg-slate-950/60">
-                <img
-                  src={item.screenshot_data_url}
-                  alt="Saved analysis screenshot"
-                  className="max-h-[360px] w-full object-contain"
-                />
-              </div>
-            </article>
-          ))}
+        <article className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-panel">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 size={20} className="text-[#00D97E]" />
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Quick Wins</h3>
+          </div>
+
+          <ul className="mt-4 space-y-3 text-sm text-slate-300">
+            {latestAnalysis.quick_wins.map((win) => (
+              <li
+                key={win}
+                className="flex gap-3 rounded-lg border border-white/10 bg-[#050608]/60 p-3"
+              >
+                <span className="text-[#00D97E]">✓</span>
+                <span>{win}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </div>
+
+      <article className="mt-8 rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <ArrowUpRight size={20} className="text-[#00D97E]" />
+          <h3 className="text-lg font-semibold text-[#F1F5F9]">Design Suggestions</h3>
         </div>
-      )}
+
+        <ul className="mt-5 space-y-4 text-sm text-slate-300">
+          {latestAnalysis.suggestions.map((suggestion) => (
+            <li
+              key={suggestion}
+              className="rounded-xl border border-white/10 bg-[#050608]/60 p-4 leading-6"
+            >
+              {suggestion}
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-[#050608]/70 shadow-panel">
+        <div className="border-b border-white/10 px-5 py-4">
+          <h3 className="text-base font-semibold text-[#F1F5F9]">
+            Analyzed Screenshot
+          </h3>
+        </div>
+
+        <img
+          src={latestAnalysis.screenshot_data_url}
+          alt="Analyzed screenshot"
+          className="max-h-[640px] w-full object-contain"
+        />
+      </article>
     </section>
   );
 }
 
-function Score({ label, value }: { label: string; value: number }) {
+function ScoreCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+    <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4 shadow-panel">
       <p className="text-xs text-slate-400">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-white">{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-[#F1F5F9]">{value}</p>
     </div>
   );
 }

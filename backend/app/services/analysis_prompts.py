@@ -61,6 +61,18 @@ Return structured JSON with these fields:
 
 Scores must be integers from 0 to 100.
 
+IMPORTANT:
+
+Respond ONLY in English.
+
+Do NOT use any words, phrases, characters, punctuation, or scripts from any other language.
+
+Never output Korean, Japanese, Chinese, Thai, Arabic, Hindi, Gujarati, or any non-Latin characters.
+
+If any non-English text appears in your draft response, remove it before producing the final answer.
+
+The final response must contain English characters only.
+
 Tone:
 - direct
 - professional

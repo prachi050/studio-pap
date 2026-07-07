@@ -64,9 +64,7 @@ export function ScreenCapturePage() {
   };
 
   const handleAnalyzeDesign = async () => {
-    if (!capture) {
-      return;
-    }
+    if (!capture) return;
 
     setAnalysisState('analyzing');
     setAnalysisErrorMessage(null);
@@ -90,12 +88,12 @@ export function ScreenCapturePage() {
     <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col overflow-y-auto px-10 py-12">
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-300">
+          <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#00D97E]">
             Capture Input
           </p>
-          <h2 className="mt-5 text-4xl font-semibold text-white">Screen Capture</h2>
+          <h2 className="mt-5 text-4xl font-semibold text-[#F1F5F9]">Capture</h2>
           <p className="mt-3 max-w-2xl text-slate-400">
-            Capture your screen, upload it securely, then send it to Ghost Designer for AI review.
+            Capture your screen, upload it securely, then send it to Studio PAP for AI review.
           </p>
         </div>
 
@@ -103,7 +101,7 @@ export function ScreenCapturePage() {
           type="button"
           onClick={handleCaptureScreen}
           disabled={captureState === 'capturing' || uploadState === 'uploading'}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-5 text-sm font-semibold text-slate-950 shadow-glow transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#00D97E] px-5 text-sm font-semibold text-[#050608] shadow-[0_0_30px_rgba(0,217,126,0.25)] transition hover:bg-[#16F28B] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {captureState === 'capturing' || uploadState === 'uploading' ? (
             <Loader2 size={17} aria-hidden="true" className="animate-spin" />
@@ -114,10 +112,12 @@ export function ScreenCapturePage() {
         </button>
       </div>
 
-      <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.06] p-5 shadow-panel">
+      <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-panel">
         <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
           <div>
-            <h3 className="text-base font-semibold text-white">Primary Display Snapshot</h3>
+            <h3 className="text-base font-semibold text-[#F1F5F9]">
+              Primary Display Snapshot
+            </h3>
             <p className="mt-1 text-sm text-slate-400">
               {capture
                 ? `${capture.sourceName} - ${capture.width} x ${capture.height}`
@@ -131,20 +131,20 @@ export function ScreenCapturePage() {
         </div>
 
         {capture ? (
-          <div className="mt-5 rounded-lg border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
+          <div className="mt-5 rounded-xl border border-white/10 bg-[#050608]/60 p-4 text-sm text-slate-300">
             <div className="flex items-center justify-between gap-4">
               <span>Upload Status</span>
-              <span className="font-medium text-white">{uploadState}</span>
+              <span className="font-medium text-[#F1F5F9]">{uploadState}</span>
             </div>
 
             {uploadState === 'uploading' ? (
-              <p className="mt-2 text-cyan-200">⬆️ Uploading screenshot...</p>
+              <p className="mt-2 text-[#7CFFB2]">Uploading screenshot...</p>
             ) : null}
 
             {uploadState === 'uploaded' && upload ? (
-              <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 p-3">
-                <p className="font-medium text-emerald-200">
-                  ✅ Screenshot uploaded successfully
+              <div className="mt-3 rounded-lg border border-[#00D97E]/30 bg-[#00D97E]/10 p-3">
+                <p className="font-medium text-[#7CFFB2]">
+                  Screenshot uploaded successfully
                 </p>
                 <p className="mt-1 text-slate-300">Filename: {upload.filename}</p>
                 <p className="mt-1 text-slate-400">{upload.message}</p>
@@ -158,14 +158,14 @@ export function ScreenCapturePage() {
         ) : null}
 
         {capture && uploadState === 'uploaded' ? (
-          <div className="mt-5 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-5">
+          <div className="mt-5 rounded-xl border border-[#00D97E]/20 bg-[#00D97E]/10 p-5">
             <div className="flex items-center justify-between gap-6">
               <div>
-                <h3 className="text-base font-semibold text-white">
+                <h3 className="text-base font-semibold text-[#F1F5F9]">
                   Ready for AI Analysis
                 </h3>
                 <p className="mt-2 text-sm text-slate-300">
-                  Send this screenshot to Ghost Designer to generate scores, quick wins,
+                  Send this screenshot to Studio PAP to generate scores, quick wins,
                   suggestions, and a top priority.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export function ScreenCapturePage() {
                 type="button"
                 onClick={handleAnalyzeDesign}
                 disabled={analysisState === 'analyzing'}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-5 text-sm font-semibold text-slate-950 shadow-glow transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#00D97E] px-5 text-sm font-semibold text-[#050608] shadow-[0_0_30px_rgba(0,217,126,0.25)] transition hover:bg-[#16F28B] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {analysisState === 'analyzing' ? (
                   <Loader2 size={17} aria-hidden="true" className="animate-spin" />
@@ -192,12 +192,12 @@ export function ScreenCapturePage() {
         ) : null}
 
         {errorMessage ? (
-          <div className="mt-5 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">
+          <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100">
             {errorMessage}
           </div>
         ) : null}
 
-        <div className="mt-5 flex min-h-[420px] items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-slate-950/70">
+        <div className="mt-5 flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-[#050608]/70">
           {capture ? (
             <img
               src={capture.dataUrl}

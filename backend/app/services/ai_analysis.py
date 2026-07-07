@@ -2,6 +2,7 @@
 
 import base64
 import json
+import re
 from typing import Any
 
 import httpx
@@ -31,20 +32,20 @@ ANALYSIS_RESPONSE_SCHEMA: dict[str, Any] = {
         "typography_score": {"type": "integer", "minimum": 0, "maximum": 100},
         "spacing_score": {"type": "integer", "minimum": 0, "maximum": 100},
         "color_score": {"type": "integer", "minimum": 0, "maximum": 100},
-        "summary": {"type": "string"},
+        "summary": {"type": "string", "maxLength": 900},
         "suggestions": {
             "type": "array",
-            "items": {"type": "string"},
+            "items": {"type": "string", "maxLength": 420},
             "minItems": 3,
-            "maxItems": 8,
+            "maxItems": 6,
         },
         "quick_wins": {
             "type": "array",
-            "items": {"type": "string"},
+            "items": {"type": "string", "maxLength": 180},
             "minItems": 1,
             "maxItems": 3,
         },
-        "top_priority": {"type": "string"},
+        "top_priority": {"type": "string", "maxLength": 420},
     },
     "required": [
         "screen_type",
@@ -74,7 +75,6 @@ class AIVisionAnalysisService:
         content_type: str,
         domain: AnalysisDomain = "ux_ui_product",
     ) -> DesignAnalysisResult:
-        """Analyze a screenshot and return structured design feedback."""
         if not self.settings.openai_api_key:
             raise AIAnalysisConfigurationError("OPENAI_API_KEY is not configured.")
 
@@ -112,21 +112,15 @@ class AIVisionAnalysisService:
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "input_text",
-                            "text": build_analysis_prompt(domain),
-                        },
-                        {
-                            "type": "input_image",
-                            "image_url": image_data_url,
-                        },
+                        {"type": "input_text", "text": build_analysis_prompt(domain)},
+                        {"type": "input_image", "image_url": image_data_url},
                     ],
                 }
             ],
             "text": {
                 "format": {
                     "type": "json_schema",
-                    "name": "ghost_designer_analysis",
+                    "name": "studio_pap_analysis",
                     "strict": True,
                     "schema": ANALYSIS_RESPONSE_SCHEMA,
                 }
@@ -138,10 +132,7 @@ class AIVisionAnalysisService:
         return f"data:{content_type};base64,{encoded_image}"
 
     def _parse_analysis_response(self, response_data: dict[str, Any]) -> DesignAnalysisResult:
-        output_text = response_data.get("output_text")
-
-        if not output_text:
-            output_text = self._extract_output_text(response_data)
+        output_text = response_data.get("output_text") or self._extract_output_text(response_data)
 
         if not output_text:
             logger.error("AI response did not include output text", response=response_data)
@@ -149,6 +140,7 @@ class AIVisionAnalysisService:
 
         try:
             parsed = json.loads(output_text)
+            parsed = self._sanitize_parsed_response(parsed)
         except json.JSONDecodeError as exc:
             logger.exception("AI response was not valid JSON")
             raise AIAnalysisError("AI vision analysis returned an invalid response.") from exc
@@ -161,3 +153,71 @@ class AIVisionAnalysisService:
                 if content_item.get("type") in {"output_text", "text"}:
                     return content_item.get("text")
         return None
+
+    def _sanitize_parsed_response(self, value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: self._sanitize_parsed_response(inner) for key, inner in value.items()}
+
+        if isinstance(value, list):
+            cleaned_items = [self._sanitize_parsed_response(item) for item in value]
+            return self._dedupe_list(cleaned_items)
+
+        if isinstance(value, str):
+            return self._sanitize_english_text(value)
+
+        return value
+
+    def _sanitize_english_text(self, text: str) -> str:
+        """Clean non-English scripts, repeated fragments, and excessive length."""
+        cleaned = re.sub(r"[^\x00-\x7F]+", "", text)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        cleaned = self._remove_repeated_phrases(cleaned)
+        return cleaned[:900].strip()
+
+    def _remove_repeated_phrases(self, text: str) -> str:
+        """Stop accidental repeated sentence/phrase loops."""
+        parts = re.split(r"(?<=[.!?])\s+", text)
+        seen: set[str] = []
+        final_parts: list[str] = []
+
+        for part in parts:
+            normalized = part.lower().strip()
+            if not normalized:
+                continue
+
+            if normalized in seen:
+                continue
+
+            seen.append(normalized)
+            final_parts.append(part.strip())
+
+        cleaned = " ".join(final_parts)
+
+        words = cleaned.split()
+        final_words: list[str] = []
+
+        for word in words:
+            if len(final_words) >= 8:
+                recent = " ".join(final_words[-8:]).lower()
+                next_recent = " ".join((final_words[-7:] + [word])).lower()
+                if recent == next_recent:
+                    continue
+
+            final_words.append(word)
+
+        return " ".join(final_words)
+
+    def _dedupe_list(self, items: list[Any]) -> list[Any]:
+        seen: set[str] = set()
+        deduped: list[Any] = []
+
+        for item in items:
+            key = str(item).strip().lower()
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+            deduped.append(item)
+
+        return deduped

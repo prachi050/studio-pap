@@ -4,8 +4,8 @@ import { Sidebar } from './Sidebar';
 
 export function Layout() {
   return (
-    <div className="h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <div className="flex h-screen bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.14),transparent_32rem)]">
+    <div className="h-screen overflow-hidden bg-[#050608] text-[#F1F5F9]">
+      <div className="flex h-screen bg-[radial-gradient(circle_at_top_right,rgba(0,217,126,0.12),transparent_34rem)]">
         <Sidebar />
         <main className="h-screen min-w-0 flex-1 overflow-y-auto">
           <Outlet />
