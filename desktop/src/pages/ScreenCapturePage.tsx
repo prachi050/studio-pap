@@ -1,11 +1,12 @@
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   capturePrimaryDisplay,
   type ScreenCaptureResult,
 } from '../services/screenCapture';
-import { analyzeScreenCapture, type ScreenAnalysisResponse } from '../services/screenAnalysis';
+import { analyzeScreenCapture } from '../services/screenAnalysis';
 import { saveAnalysisToHistory } from '../services/analysisHistory';
 import { uploadScreenCapture, type ScreenUploadResponse } from '../services/screenUpload';
 
@@ -14,12 +15,13 @@ type UploadState = 'idle' | 'uploading' | 'uploaded' | 'error';
 type AnalysisState = 'idle' | 'analyzing' | 'success' | 'error';
 
 export function ScreenCapturePage() {
+  const navigate = useNavigate();
+
   const [captureState, setCaptureState] = useState<CaptureState>('idle');
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [analysisState, setAnalysisState] = useState<AnalysisState>('idle');
   const [capture, setCapture] = useState<ScreenCaptureResult | null>(null);
   const [upload, setUpload] = useState<ScreenUploadResponse | null>(null);
-  const [analysis, setAnalysis] = useState<ScreenAnalysisResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState<string | null>(null);
@@ -32,44 +34,50 @@ export function ScreenCapturePage() {
     setUploadErrorMessage(null);
     setAnalysisErrorMessage(null);
     setUpload(null);
-    setAnalysis(null);
-
-    let result: ScreenCaptureResult;
 
     try {
-      result = await capturePrimaryDisplay();
+      const result = await capturePrimaryDisplay();
+
       setCapture(result);
       setCaptureState('captured');
+
+      try {
+        setUploadState('uploading');
+
+        const uploadResult = await uploadScreenCapture(result.dataUrl);
+
+        setUpload(uploadResult);
+        setUploadState('uploaded');
+      } catch (error) {
+        setUploadState('error');
+        setUploadErrorMessage(
+          error instanceof Error ? error.message : 'Unable to upload the screenshot.',
+        );
+      }
     } catch (error) {
       setCapture(null);
       setCaptureState('error');
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to capture the primary display.',
       );
+    }
+  };
+
+  const handleAnalyzeDesign = async () => {
+    if (!capture) {
       return;
     }
 
-    try {
-      setUploadState('uploading');
-      const uploadResult = await uploadScreenCapture(result.dataUrl);
-      setUpload(uploadResult);
-      setUploadState('uploaded');
-    } catch (error) {
-      setUploadState('error');
-      setUploadErrorMessage(
-        error instanceof Error ? error.message : 'Unable to upload the screenshot.',
-      );
-    }
+    setAnalysisState('analyzing');
+    setAnalysisErrorMessage(null);
 
     try {
-      setAnalysisState('analyzing');
+      const analysisResult = await analyzeScreenCapture(capture.dataUrl);
 
-      const analysisResult = await analyzeScreenCapture(result.dataUrl);
+      saveAnalysisToHistory(analysisResult, capture.dataUrl);
 
-      saveAnalysisToHistory(analysisResult, result.dataUrl);
-
-      setAnalysis(analysisResult);
       setAnalysisState('success');
+      navigate('/suggestions');
     } catch (error) {
       setAnalysisState('error');
       setAnalysisErrorMessage(
@@ -83,27 +91,21 @@ export function ScreenCapturePage() {
       <div className="flex items-start justify-between gap-6">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-300">
-            Capture Foundation
+            Capture Input
           </p>
           <h2 className="mt-5 text-4xl font-semibold text-white">Screen Capture</h2>
           <p className="mt-3 max-w-2xl text-slate-400">
-            Capture one screenshot from the primary display.
+            Capture your screen, upload it securely, then send it to Ghost Designer for AI review.
           </p>
         </div>
 
         <button
           type="button"
           onClick={handleCaptureScreen}
-          disabled={
-            captureState === 'capturing' ||
-            uploadState === 'uploading' ||
-            analysisState === 'analyzing'
-          }
+          disabled={captureState === 'capturing' || uploadState === 'uploading'}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-5 text-sm font-semibold text-slate-950 shadow-glow transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {captureState === 'capturing' ||
-          uploadState === 'uploading' ||
-          analysisState === 'analyzing' ? (
+          {captureState === 'capturing' || uploadState === 'uploading' ? (
             <Loader2 size={17} aria-hidden="true" className="animate-spin" />
           ) : (
             <Camera size={17} aria-hidden="true" />
@@ -155,113 +157,36 @@ export function ScreenCapturePage() {
           </div>
         ) : null}
 
-        {capture ? (
-          <div className="mt-5 rounded-lg border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
-            {analysisState === 'analyzing' ? (
-              <p className="font-medium text-white">👻 Looking closely...</p>
-            ) : null}
-
-            {analysis ? (
-              <div className="space-y-6">
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div className="rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
-                      Screen Type
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {analysis.screen_type}
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-emerald-200">
-                      Design Score
-                    </p>
-                    <p className="mt-2 text-3xl font-semibold text-white">
-                      {analysis.design_score}/100
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                      Top Priority
-                    </p>
-                    <p className="mt-2 text-sm text-slate-200">
-                      {analysis.top_priority}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-5">
-                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
-                    <p className="text-xs text-slate-400">Accessibility</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {analysis.accessibility_score}
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
-                    <p className="text-xs text-slate-400">Hierarchy</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {analysis.hierarchy_score}
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
-                    <p className="text-xs text-slate-400">Typography</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {analysis.typography_score}
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
-                    <p className="text-xs text-slate-400">Spacing</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {analysis.spacing_score}
-                    </p>
-                  </div>
-
-                  <div className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
-                    <p className="text-xs text-slate-400">Color</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {analysis.color_score}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-semibold text-white">Summary</h3>
-                  <p className="mt-2 text-slate-300">{analysis.summary}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-semibold text-white">Quick Wins</h3>
-                  <ul className="mt-2 space-y-2 text-slate-300">
-                    {analysis.quick_wins.map((win) => (
-                      <li key={win} className="flex gap-2">
-                        <span className="text-emerald-300">✓</span>
-                        <span>{win}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-semibold text-white">Suggestions</h3>
-                  <ul className="mt-2 space-y-2 text-slate-300">
-                    {analysis.suggestions.map((suggestion) => (
-                      <li key={suggestion} className="flex gap-2">
-                        <span className="text-cyan-300">•</span>
-                        <span>{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+        {capture && uploadState === 'uploaded' ? (
+          <div className="mt-5 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-5">
+            <div className="flex items-center justify-between gap-6">
+              <div>
+                <h3 className="text-base font-semibold text-white">
+                  Ready for AI Analysis
+                </h3>
+                <p className="mt-2 text-sm text-slate-300">
+                  Send this screenshot to Ghost Designer to generate scores, quick wins,
+                  suggestions, and a top priority.
+                </p>
               </div>
-            ) : null}
+
+              <button
+                type="button"
+                onClick={handleAnalyzeDesign}
+                disabled={analysisState === 'analyzing'}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-5 text-sm font-semibold text-slate-950 shadow-glow transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {analysisState === 'analyzing' ? (
+                  <Loader2 size={17} aria-hidden="true" className="animate-spin" />
+                ) : (
+                  <Sparkles size={17} aria-hidden="true" />
+                )}
+                {analysisState === 'analyzing' ? 'Analyzing...' : 'Analyze Design'}
+              </button>
+            </div>
 
             {analysisErrorMessage ? (
-              <p className="text-red-100">{analysisErrorMessage}</p>
+              <p className="mt-3 text-sm text-red-100">{analysisErrorMessage}</p>
             ) : null}
           </div>
         ) : null}
