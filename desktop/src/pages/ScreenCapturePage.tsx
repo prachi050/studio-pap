@@ -6,6 +6,7 @@ import {
   type ScreenCaptureResult,
 } from '../services/screenCapture';
 import { analyzeScreenCapture, type ScreenAnalysisResponse } from '../services/screenAnalysis';
+import { saveAnalysisToHistory } from '../services/analysisHistory';
 import { uploadScreenCapture, type ScreenUploadResponse } from '../services/screenUpload';
 
 type CaptureState = 'idle' | 'capturing' | 'captured' | 'error';
@@ -43,9 +44,7 @@ export function ScreenCapturePage() {
       setCapture(null);
       setCaptureState('error');
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to capture the primary display.',
+        error instanceof Error ? error.message : 'Unable to capture the primary display.',
       );
       return;
     }
@@ -64,7 +63,11 @@ export function ScreenCapturePage() {
 
     try {
       setAnalysisState('analyzing');
+
       const analysisResult = await analyzeScreenCapture(result.dataUrl);
+
+      saveAnalysisToHistory(analysisResult, result.dataUrl);
+
       setAnalysis(analysisResult);
       setAnalysisState('success');
     } catch (error) {
