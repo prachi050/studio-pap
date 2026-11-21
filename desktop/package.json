@@ -1,12 +1,13 @@
 {
-  "name": "ghost-designer-desktop",
+  "name": "studio-pap",
   "version": "0.1.0",
   "private": true,
-  "description": "Ghost Designer desktop application",
+  "description": "Studio PAP desktop application",
   "main": "dist-electron/main.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"tsc -p tsconfig.electron.json --watch --preserveWatchOutput\" \"wait-on http://127.0.0.1:5173 dist-electron/main.js && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
+    "dev": "concurrently -k \"vite --host localhost\" \"tsc -p tsconfig.electron.json --watch --preserveWatchOutput\" \"wait-on http://localhost:5173 dist-electron/main.js && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "package:mac": "npm run build && electron-builder --mac dmg",
     "build": "npm run typecheck && vite build && npm run build:electron",
     "build:electron": "tsc -p tsconfig.electron.json",
     "preview": "vite preview --host 127.0.0.1",
@@ -19,13 +20,16 @@
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.7.9",
-    "electron": "^43.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.1.1",
     "vite": "^6.0.7"
   },
+
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.2",
@@ -34,6 +38,8 @@
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^5.1.0",
@@ -45,5 +51,24 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2",
     "wait-on": "^8.0.1"
+  },
+  "build": {
+  "appId": "com.prachi.studiopap",
+  "productName": "Studio PAP",
+  "files": [
+    "dist/**/*",
+    "dist-electron/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "../backend/dist/studiopap-backend",
+      "to": "backend"
+    }
+  ],
+  "mac": {
+    "target": "dmg",
+    "category": "public.app-category.productivity"
   }
+} 
 }

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 512 512"
+     role="img"
+     aria-labelledby="title desc">
+  <title id="title">Studio PAP logo</title>
+  <desc id="desc">Gold circular mark with an upward arrow and a top dot on a transparent background.</desc>
+
+  <defs>
+    <linearGradient id="ringGradient" x1="96" y1="72" x2="410" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF3A0"/>
+      <stop offset="0.32" stop-color="#FFD64A"/>
+      <stop offset="0.68" stop-color="#F6A400"/>
+      <stop offset="1" stop-color="#E86C00"/>
+    </linearGradient>
+
+    <linearGradient id="arrowLeftGradient" x1="164" y1="152" x2="268" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF8B8"/>
+      <stop offset="0.5" stop-color="#FFD64A"/>
+      <stop offset="1" stop-color="#F09A00"/>
+    </linearGradient>
+
+    <linearGradient id="arrowRightGradient" x1="348" y1="160" x2="242" y2="394" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE36E"/>
+      <stop offset="0.55" stop-color="#FFBF1A"/>
+      <stop offset="1" stop-color="#E97800"/>
+    </linearGradient>
+
+    <linearGradient id="innerGradient" x1="256" y1="272" x2="256" y2="405" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C64B00"/>
+      <stop offset="1" stop-color="#6F2200"/>
+    </linearGradient>
+
+    <radialGradient id="dotGradient" cx="36%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#FFF9C4"/>
+      <stop offset="0.4" stop-color="#FFD54A"/>
+      <stop offset="1" stop-color="#F08A00"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer circular mark with top opening -->
+  <path
+    d="M154 112
+       C86 151 48 225 55 300
+       C64 397 146 468 244 474
+       C347 481 438 410 455 309
+       C468 232 431 155 359 112"
+    fill="none"
+    stroke="url(#ringGradient)"
+    stroke-width="34"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+
+  <!-- Left face of the arrow -->
+  <path
+    d="M256 145
+       L149 392
+       L256 286
+       Z"
+    fill="url(#arrowLeftGradient)"/>
+
+  <!-- Right face of the arrow -->
+  <path
+    d="M256 145
+       L363 392
+       L256 286
+       Z"
+    fill="url(#arrowRightGradient)"/>
+
+  <!-- Inner folded depth -->
+  <path
+    d="M256 286
+       L149 392
+       L256 337
+       L363 392
+       Z"
+    fill="url(#innerGradient)"/>
+
+  <!-- Top bindu -->
+  <circle cx="256" cy="83" r="31" fill="url(#dotGradient)"/>
+</svg>

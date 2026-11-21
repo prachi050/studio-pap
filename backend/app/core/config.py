@@ -20,10 +20,22 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "Ghost Designer"
-    environment: str = Field(default="development", alias="ENVIRONMENT")
-    debug: bool = Field(default=False, alias="DEBUG")
-    api_prefix: str = Field(default="", alias="API_PREFIX")
+    app_name: str = "Studio PAP"
+
+    environment: str = Field(
+        default="development",
+        alias="ENVIRONMENT",
+    )
+
+    debug: bool = Field(
+        default=False,
+        alias="DEBUG",
+    )
+
+    api_prefix: str = Field(
+        default="",
+        alias="API_PREFIX",
+    )
 
     cors_origins: list[str] = Field(
         default_factory=lambda: [
@@ -35,12 +47,42 @@ class Settings(BaseSettings):
         alias="CORS_ORIGINS",
     )
 
-    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
-    log_file: Path = Field(default=BASE_DIR / "logs" / "app.log", alias="LOG_FILE")
-    uploads_dir: Path = Field(default=BASE_DIR / "uploads", alias="UPLOADS_DIR")
-    openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
-    openai_base_url: str = Field(default="https://api.openai.com/v1", alias="OPENAI_BASE_URL")
-    ai_vision_model: str = Field(default="gpt-5.5", alias="AI_VISION_MODEL")
+    log_level: str = Field(
+        default="INFO",
+        alias="LOG_LEVEL",
+    )
+
+    log_file: Path = Field(
+        default=BASE_DIR / "logs" / "app.log",
+        alias="LOG_FILE",
+    )
+
+    uploads_dir: Path = Field(
+        default=BASE_DIR / "uploads",
+        alias="UPLOADS_DIR",
+    )
+
+    openai_api_key: str | None = Field(
+        default=None,
+        alias="OPENAI_API_KEY",
+    )
+
+    openai_base_url: str = Field(
+        default="https://api.openai.com/v1",
+        alias="OPENAI_BASE_URL",
+    )
+
+    # Used for screenshot and uploaded-image analysis.
+    ai_vision_model: str = Field(
+        default="gpt-4.1",
+        alias="AI_VISION_MODEL",
+    )
+
+    # Used for Assistant chat and follow-up questions.
+    assistant_model: str = Field(
+        default="gpt-4.1-mini",
+        alias="ASSISTANT_MODEL",
+    )
 
     @field_validator("log_file", "uploads_dir", mode="after")
     @classmethod
@@ -48,10 +90,19 @@ class Settings(BaseSettings):
         """Resolve relative paths from the backend directory."""
         if value.is_absolute():
             return value
+
         return BASE_DIR / value
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Return cached application settings."""
-    return Settings()
+    settings = Settings()
+
+    print("=" * 60)
+    print("BASE_DIR:", BASE_DIR)
+    print("ENV FILE:", BASE_DIR / ".env")
+    print("ENV EXISTS:", (BASE_DIR / ".env").exists())
+    print("OPENAI KEY FOUND:", bool(settings.openai_api_key))
+    print("=" * 60)
+
+    return settings
