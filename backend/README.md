@@ -1,6 +1,6 @@
-# Ghost Designer Backend
+# Studio PAP Backend
 
-Python/FastAPI backend for the Ghost Designer desktop AI application.
+Python/FastAPI backend for the Studio PAP desktop AI application.
 
 ## Requirements
 
@@ -45,7 +45,7 @@ Returns the backend status.
 ```json
 {
   "status": "running",
-  "project": "Ghost Designer"
+  "project": "Studio PAP"
 }
 ```
 

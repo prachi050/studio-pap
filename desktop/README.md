@@ -1,6 +1,6 @@
-# Ghost Designer Desktop
+# Studio PAP Desktop
 
-Electron + React + TypeScript desktop client for Ghost Designer.
+Electron + React + TypeScript desktop client for Studio PAP.
 
 ## Stack
 
